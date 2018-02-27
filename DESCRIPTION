@@ -1,0 +1,10 @@
+Package: RHOGE
+Title: Genome-wide genetic correlation between two complex traits using TWAS effect-size estimates
+Version: 0.1
+Authors@R: person("Ncholas", "Mancuso", email = "nick.mancuso@gmail.com", role = c("aut", "cre"))
+Description: Computes genome-wide genetic correlation between two complex traits using gene-level effects, rather than SNPs.
+Depends: R (>= 3.4.2)
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
