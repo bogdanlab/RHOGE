@@ -2,7 +2,7 @@
 % Please edit documentation in R/inference.R
 \name{rhoge.bd}
 \alias{rhoge.bd}
-\title{TBD}
+\title{Performs bi-directional regression to determine putative causal direction between two traits.}
 \usage{
 rhoge.bd(trait1, trait2, n1, n2, p1 = NA, p2 = NA, min_regions = 10,
   regions = grch37.eur.loci)
@@ -25,5 +25,5 @@ rhoge.bd(trait1, trait2, n1, n2, p1 = NA, p2 = NA, min_regions = 10,
 \item{regions, }{data.frame-like containing approximate independent regions. Requires columns (Chr, Start, Stop). Default is estimated blocks in Europeans.}
 }
 \description{
-TBD
+Performs bi-directional regression to determine putative causal direction between two traits.
 }
