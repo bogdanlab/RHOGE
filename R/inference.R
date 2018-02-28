@@ -1,4 +1,52 @@
 
+#' Internal parameter validation
+#'
+#' @param n size
+#' @param name name of variable
+validate_size <- function(n, name) {
+  if (!is.numeric(n) || n < 0) {
+    stop(paste0(name, " must be a positive integer value"))
+  }
+}
+
+#' Internal pval validation
+#' @param p double, nominal significance threshold for genome-wide RhoGE estimate (default=0.05)
+#' @param name name of variable
+validate_pval <- function(p, name) {
+  if (!is.numeric(p) || !(p >= 0 && p <= 1)) {
+    stop(paste0(name, " must be a number in [0, 1]"))
+  }
+}
+
+#' Internal data.frame/table validation
+#' @param trait1 data.frame-like, containing TWAS results for trait 1
+#' @param trait2 data.frame-like, containing TWAS results for trait 2
+#' @param regions, data.frame-like containing approximate independent regions. Requires columns (Chr, Start,
+validate_tables <- function(trait1, trait2, regions = grch37.eur.loci) {
+  check_df <- function(df, name) {
+    if (is.null(df) || !is.data.frame(df) || nrow(df) == 0) {
+      stop(paste0(name, " must be a non-empty data.frame like object"))
+    }
+  }
+  check_fusion_df <- function(df, name) {
+    req_names <- c("FILE", "ID", "CHR", "P0", "P1", "HSQ", "TWAS.Z", "TWAS.P")
+    cn <- colnames(df)
+    rnn <- length(req_names)
+    if (length(base::intersect(req_names, cn)) != rnn) {
+      stop(paste0(name, " requires ", paste(req_names, sep=",", collapse = T), "for valid inference."))
+    }
+  }
+  check_df(trait1, "trait1")
+  check_fusion_df(trait1, "trait1")
+  check_df(trait2, "trait2")
+  check_fusion_df(trait2, "trait2")
+
+  check_df(regions, "regions")
+  if (!("CHR" %in% colnames(regions) && "START" %in% colnames(regions) && "STOP" %in% colnames(regions))) {
+    stop("regions must be non-empty data.frame-like with CHR, START, and STOP variables")
+  }
+}
+
 #' Get FUSION table
 #' @param twas_tbl data.frame-like, Table/Dataframe of TWAS results from FUSION
 #' @param ngwas integer, Sample size for GWAS
@@ -107,6 +155,10 @@ get_independent <- function(genes, regions) {
 rhoge.gw <- function(trait1, trait2, n1, n2, p = 0.05, regions = grch37.eur.loci) {
 
   # perform error-checking here
+  validate_tables(trait1, trait2, regions)
+  validate_size(n1, "n1")
+  validate_size(n2, "n2")
+  validate_pval(p, "p")
 
   res1 <- get_trait(trait1, n1)
   res2 <- get_trait(trait2, n2)
@@ -132,14 +184,25 @@ rhoge.gw <- function(trait1, trait2, n1, n2, p = 0.05, regions = grch37.eur.loci
 #' @importFrom dplyr filter rename mutate bind_rows
 #' @export
 rhoge.bd <- function(trait1, trait2, n1, n2, p1 = NA, p2 = NA, min_regions = 10, regions = grch37.eur.loci) {
+  # perform error-checking here
+  validate_tables(trait1, trait2, regions)
+  validate_size(n1, "n1")
+  validate_size(n2, "n2")
+  validate_size(min_regions, "min_regions")
+
   res1 <- get_trait(trait1, n1)
   res2 <- get_trait(trait2, n2)
 
   if (is.na(p1)) {
     p1 <- 0.05 / nrow(res1)
+  } else {
+    validate_pval(p1, "p1")
   }
+
   if (is.na(p2)) {
     p2 <- 0.05 / nrow(res2)
+  } else {
+    validate_pval(p2, "p2")
   }
 
   # Ascertain on genes specific to trait 1

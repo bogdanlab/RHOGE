@@ -1,0 +1,40 @@
+# RHOGE
+RHOGE is an R package that computes estimates the genome-wide genetic correlation between two complex traits (diseases) as
+a function of predicted gene expression effect on trait ($\rho_{ge}$). Given output from two transcriptome-wide association studies,
+RHOGE estimates the mediating effect of predicted gene expression and estimates the correlation of effect sizes. This approach
+is extended to a bi-directional regression that provides putative causal directions between traits with non-zero $\rho_{ge}$.
+
+This approach is described in 
+(Integrating Gene Expression with Summary Association Statistics to Identify Genes Associated with 30 Complex Traits)[https://doi.org/10.1016/j.ajhg.2017.01.031]. Nicholas Mancuso, Huwenbo Shi, Pagé Goddard, Gleb Kichaev, 
+Alexander Gusev8, Bogdan Pasaniuc. American Journal of Human Genetics. 2017.
+
+# Installation
+Bioconductor + devtools is the most straightforward way to install RHOGE. To do this open an R terminal and enter
+```{r}
+source("http://bioconductor.org/biocLite.R")
+biocLite("devtools")    # only if devtools not yet installed
+biocLite("bogdanlab/RHOGE")
+```
+
+# Example
+The following example computes $\rho_{ge}$ between BMI and triglycerides, as well as putative causal directions.
+```{r}
+library(RHOGE)
+
+# example BMI TWAS results from FUSION
+data(bmi)
+head(bmi)
+
+# example triglyceride TWAS results from FUSION
+data(tg)
+head(tg)
+
+# Estimate rho_ge genome-wide for BMI and Triglyerides and approximate sample sizes
+ge_cor_res <- rhoge.gw(bmi, tg, 14000, 91000)
+head(ge_cor_res)
+
+bidir_res <- rhoge.bd(bmi, tg, 14000, 91000, p1 = 0.05 / nrow(bmi), p2 = 0.05 / nrow(tg))
+head(bidir_res)
+```
+
+Currently, only (FUSION)[https://github.com/gusevlab/fusion_twas] style output is supported.
