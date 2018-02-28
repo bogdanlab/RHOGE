@@ -23,8 +23,9 @@ get_trait <- function(twas_tbl, ngwas) {
 #' @param min_regions integer, Minimum number of independent regions for inference
 #' @param nsamples integer, Number of samples to perform for bootstrapping
 #' @importFrom dplyr group_by summarize n_distinct pull filter sample_n
+#' @importFrom bootstrap jackknife
 #' @return data.frame with estimates
-get_cor <- function(t1, t2, regions = grch37.eur.loci, min_regions=10, nsamples=100) {
+get_cor <- function(t1, t2, regions = grch37.eur.loci, min_regions=10, nsamples=10) {
   # mean is likely over-confident since predicted expression levels will be moderately correlated across tissues
   # TODO: consider other meta-analysis methods in future
   t1 <- t1 %>% group_by(ID) %>% summarize(CHR=CHR[1], P0=median(P0), P1=median(P1), Alpha=mean(Alpha))
@@ -42,19 +43,28 @@ get_cor <- function(t1, t2, regions = grch37.eur.loci, min_regions=10, nsamples=
   }
 
   # bootstrap genes from each each region
-  out = list()
+  # this turns out to be very stable and produces biased standard errors
+  # to remedy this just do a small amount of bootstraps and jackknife the sd each time
+  cor.out = list()
+  sd.out = list()
   for (idx in 1:nsamples) {
     sub_genes <- ind_genes %>% group_by(BLOCK) %>% sample_n(1) %>% pull(ID)
     sub_both <- both %>% filter(ID %in% sub_genes)
-    out[idx] <- stats::cor(sub_both$Alpha.x, sub_both$Alpha.y)
+    cor.out[idx] <- stats::cor(sub_both$Alpha.x, sub_both$Alpha.y)
+
+    jkres <- bootstrap::jackknife(1:length(sub_genes), function(x) stats::cor(sub_both[x,]$Alpha.x, sub_both[x,]$Alpha.y))
+    sd.out[idx] <- jkres$jack.se
   }
-  vout <- unlist(out)
+  vout <- unlist(cor.out)
+  vsdout <- unlist(sd.out)
+
   m_rho_ge <- mean(vout)
-  se_rho_ge <- sd(vout) / sqrt(nsamples)
+  se_rho_ge <- mean(vsdout)
+
   t_rho_ge <- m_rho_ge / se_rho_ge
   p <- 2 * pt(abs(t_rho_ge), mregions - 2, lower.tail=F)
 
-  data.frame(RHOGE=m_rho_ge, SE=se_rho_ge, TSTAT=t_rho_ge, P=p)
+  data.frame(RHOGE=m_rho_ge, SE=se_rho_ge, TSTAT=t_rho_ge, DF=mregions - 2, P=p)
 }
 
 #' Get spatially independent genes
@@ -105,7 +115,7 @@ rhoge.gw <- function(trait1, trait2, n1, n2, p = 0.05, regions = grch37.eur.loci
   trt1 <- res1 %>% filter(TWAS.P < p)
   trt2 <- res2 %>% filter(TWAS.P < p)
 
-  # Compute \rho_ge
+  # Compute \eqn{\rho_ge}
   get_cor(trt1, trt2, regions)
 }
 
@@ -117,44 +127,54 @@ rhoge.gw <- function(trait1, trait2, n1, n2, p = 0.05, regions = grch37.eur.loci
 #' @param n2 integer, sample-size for trait 2 GWAS
 #' @param p1 double, Transcriptome-wide significance threshold for trait 1 ascertainment. Default is # Bonferroni adjusted 0.05
 #' @param p2 double, Transcriptome-wide significance threshold for trait 2 ascertainment. Default is # Bonferroni adjusted 0.05
-#' @param min_genes, Minimum number of ascertained genes required for bi-directional regression
+#' @param min_regions, Minimum number of ascertained regions required for bi-directional regression
 #' @param regions, data.frame-like containing approximate independent regions. Requires columns (Chr, Start, Stop). Default is estimated blocks in Europeans.
+#' @importFrom dplyr filter rename mutate bind_rows
 #' @export
-rhoge.bd <- function(trait1, trait2, n1, n2, p1 = NA, p2 = NA, min_genes = 10, regions = grch37.eur.loci) {
+rhoge.bd <- function(trait1, trait2, n1, n2, p1 = NA, p2 = NA, min_regions = 10, regions = grch37.eur.loci) {
   res1 <- get_trait(trait1, n1)
   res2 <- get_trait(trait2, n2)
+
+  if (is.na(p1)) {
+    p1 <- 0.05 / nrow(res1)
+  }
+  if (is.na(p2)) {
+    p2 <- 0.05 / nrow(res2)
+  }
 
   # Ascertain on genes specific to trait 1
   trt1 <- res1 %>% dplyr::filter(TWAS.P < p1)
   trt2 <- res2 %>% dplyr::filter(TWAS.P <= 1)
 
-  res1 <- get_cor(trt1, trt2, regions = regions, min_regions = min_regions)
-  rho12 <- res1$RHO
-  p12 <- res1$P
-  se12 <- res1$SE
-  n12 <- res1$M
+  rhoge1 <- get_cor(trt1, trt2, regions = regions, min_regions = min_regions)
+  rho12 <- rhoge1$RHOGE
+  p12 <- rhoge1$P
+  se12 <- rhoge1$SE
+  n12 <- rhoge1$DF + 2
 
   # Ascertain on genes specific to trait 2
   trt1 <- res1 %>% dplyr::filter(TWAS.P <= 1)
-  trt2 <- res2 %>% dplyr::filter(TWAS.P < p1)
+  trt2 <- res2 %>% dplyr::filter(TWAS.P < p2)
 
-  res2 <- get_cor(trt1, trt2, regions = regions, min_regions = min_regions)
-  rho21 <- res2$RHO
-  p21 <- res2$P
-  se21 <- res2$SE
-  n21 <- res2$M
+  rhoge2 <- get_cor(trt1, trt2, regions = regions, min_regions = min_regions)
+  rho21 <- rhoge2$RHOGE
+  p21 <- rhoge2$P
+  se21 <- rhoge2$SE
+  n21 <- rhoge2$DF + 2
 
-  if (n21 > min_genes & n12 > min_genes) {
-      # Compute if model means are different
-      t <- (rho12 - rho21)/sqrt(se12^2 + se21^2)
-      df <- (se12^2 + se21^2)^2/((se12^4/(n12 - 1)) + (se21^4/(n21 - 1)))
-      Pt <- 2 * pt(abs(t), df, lower.tail = F)
+  f1 <- rhoge1 %>% dplyr::rename(ESTIMATE = RHOGE) %>% dplyr::mutate(TEST = "Trait1 -> Trait2")
+  f2 <- rhoge2 %>% dplyr::rename(ESTIMATE = RHOGE) %>% dplyr::mutate(TEST = "Trait2 -> Trait1")
+
+  if (n21 > min_regions & n12 > min_regions) {
+    t <- (rho12 - rho21)/sqrt(se12^2 + se21^2)
+    df <- (se12^2 + se21^2)^2/((se12^4/(n12 - 1)) + (se21^4/(n21 - 1)))
+    Pt <- 2 * pt(abs(t), df, lower.tail = F)
+    diff <- data.frame(ESTIMATE=NA, SE=NA, TEST="DIFF", TSTAT=t, DF=df, P=Pt)
+
   } else {
-      df <- "NA"
-      Pt <- "NA"
+    warning("Insufficient observations to compute difference test.")
+    diff <- data.frame(ESTIMATE=NA, SE=NA, TEST="DIFF", TSTAT=NA, DF=NA, P=NA)
   }
 
-  cat("(Trait1 -> Trait2) RhoGE SE P(t) M:", rho12, se12, p12, n12, "\n", file = output, append = T)
-  cat("(Trait1 <- Trait2) RhoGE SE P(t) M:", rho21, se21, p21, n21, "\n", file = output, append = T)
-  cat("P(Welch's t) ~df", Pt, df, "\n", file = output, append = T)
+  bind_rows(list(f1, f2, diff))
 }

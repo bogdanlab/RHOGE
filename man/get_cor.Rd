@@ -5,7 +5,7 @@
 \title{Compute \eqn{\rho_ge}}
 \usage{
 get_cor(t1, t2, regions = grch37.eur.loci, min_regions = 10,
-  nsamples = 100)
+  nsamples = 10)
 }
 \arguments{
 \item{t1}{data.frame-like, TWAS results for trait1}

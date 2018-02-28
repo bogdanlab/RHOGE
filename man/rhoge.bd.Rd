@@ -4,7 +4,7 @@
 \alias{rhoge.bd}
 \title{TBD}
 \usage{
-rhoge.bd(trait1, trait2, n1, n2, p1 = NA, p2 = NA, min_genes = 10,
+rhoge.bd(trait1, trait2, n1, n2, p1 = NA, p2 = NA, min_regions = 10,
   regions = grch37.eur.loci)
 }
 \arguments{
@@ -20,7 +20,7 @@ rhoge.bd(trait1, trait2, n1, n2, p1 = NA, p2 = NA, min_genes = 10,
 
 \item{p2}{double, Transcriptome-wide significance threshold for trait 2 ascertainment. Default is # Bonferroni adjusted 0.05}
 
-\item{min_genes, }{Minimum number of ascertained genes required for bi-directional regression}
+\item{min_regions, }{Minimum number of ascertained genes required for bi-directional regression}
 
 \item{regions, }{data.frame-like containing approximate independent regions. Requires columns (Chr, Start, Stop). Default is estimated blocks in Europeans.}
 }
