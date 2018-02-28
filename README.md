@@ -76,16 +76,37 @@ head(ge_cor_res)
 ```
 
     ##       RHOGE         SE    TSTAT  DF            P
-    ## 1 0.2168836 0.05869152 3.695313 461 0.0002459941
+    ## 1 0.2238259 0.05667097 3.949569 461 9.053931e-05
 
 ``` r
 bidir_res <- rhoge.bd(bmi, tg, 14000, 91000, p1 = 0.05 / nrow(bmi), p2 = 0.05 / nrow(tg))
 head(bidir_res)
 ```
 
-    ##     ESTIMATE         SE      TSTAT       DF            P             TEST
-    ## 1  0.5981401 0.09416694  6.3519115 35.00000 2.662674e-07 Trait1 -> Trait2
-    ## 2 -0.1068047 0.20526312 -0.5203307 35.00000 6.061092e-01 Trait2 -> Trait1
-    ## 3         NA         NA  3.1215369 50.51057 2.973945e-03             DIFF
+    ##     ESTIMATE        SE      TSTAT       DF            P             TEST
+    ## 1 0.58340116 0.1014315 5.75167494 35.00000 1.640598e-06 Trait1 -> Trait2
+    ## 2 0.01167885 0.2124669 0.05496785 35.00000 9.564767e-01 Trait2 -> Trait1
+    ## 3         NA        NA 2.42834572 51.59924 1.869083e-02             DIFF
+
+Notes
+=====
 
 Currently, only [FUSION](https://github.com/gusevlab/fusion_twas) style output is supported.
+
+RHOGE comes installed with estimates of approximately independent LD blocks for European, Asian, and African ancestries. Performance should improve if you have in-sample estimates of LD blocks. The only requirement is that regions are stored as a data.frame-like object with 3 columns ('CHR', 'START', 'STOP'). For example,
+
+``` r
+library(RHOGE)
+data("grch37.eur.loci")
+head(grch37.eur.loci)
+```
+
+    ## # A tibble: 6 x 3
+    ##     CHR   START    STOP
+    ##   <int>   <int>   <int>
+    ## 1     1   10583 1892607
+    ## 2     1 1892607 3582736
+    ## 3     1 3582736 4380811
+    ## 4     1 4380811 5913893
+    ## 5     1 5913893 7247335
+    ## 6     1 7247335 9365199

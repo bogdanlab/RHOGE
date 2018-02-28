@@ -44,4 +44,14 @@ bidir_res <- rhoge.bd(bmi, tg, 14000, 91000, p1 = 0.05 / nrow(bmi), p2 = 0.05 / 
 head(bidir_res)
 ```
 
+# Notes
 Currently, only [FUSION](https://github.com/gusevlab/fusion_twas) style output is supported.
+
+RHOGE comes installed with estimates of approximately independent LD blocks for European, Asian, and African ancestries. Performance
+should improve if you have in-sample estimates of LD blocks. The only requirement is that regions are stored as a data.frame-like
+object with 3 columns ('CHR', 'START', 'STOP'). For example,
+```{r}
+library(RHOGE)
+data("grch37.eur.loci")
+head(grch37.eur.loci)
+```
