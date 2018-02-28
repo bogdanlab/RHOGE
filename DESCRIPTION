@@ -12,5 +12,6 @@ Imports: magrittr,
     tibble,
     dplyr,
     bootstrap,
-    GenomicRanges,
-    IRanges
+    biocViews,
+    IRanges,
+    GenomicRanges
