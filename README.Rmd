@@ -5,9 +5,9 @@ date: "`r format(Sys.Date())`"
 output: github_document
 ---  
 RHOGE is an R package that computes estimates the genome-wide genetic correlation between two complex traits (diseases) as
-a function of predicted gene expression effect on trait (\rho_{ge}). Given output from two transcriptome-wide association studies,
+a function of predicted gene expression effect on trait (\\rho_{ge}). Given output from two transcriptome-wide association studies,
 RHOGE estimates the mediating effect of predicted gene expression and estimates the correlation of effect sizes. This approach
-is extended to a bi-directional regression that provides putative causal directions between traits with non-zero \rho_{ge}.
+is extended to a bi-directional regression that provides putative causal directions between traits with non-zero \\rho_{ge}.
 
 This approach is described in:
 
@@ -24,7 +24,7 @@ biocLite("bogdanlab/RHOGE")
 ```
 
 # Example
-The following example computes \rho_{ge} between BMI and triglycerides, as well as putative causal directions.
+The following example computes \\rho_{ge} between BMI and triglycerides, as well as putative causal directions.
 ```{r warning=FALSE}
 library(RHOGE)
 

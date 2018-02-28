@@ -3,7 +3,7 @@ RHOGE
 Nick Mancuso
 2018-02-27
 
-RHOGE is an R package that computes estimates the genome-wide genetic correlation between two complex traits (diseases) as a function of predicted gene expression effect on trait (*{ge}). Given output from two transcriptome-wide association studies, RHOGE estimates the mediating effect of predicted gene expression and estimates the correlation of effect sizes. This approach is extended to a bi-directional regression that provides putative causal directions between traits with non-zero *{ge}.
+RHOGE is an R package that computes estimates the genome-wide genetic correlation between two complex traits (diseases) as a function of predicted gene expression effect on trait (\\rho\_{ge}). Given output from two transcriptome-wide association studies, RHOGE estimates the mediating effect of predicted gene expression and estimates the correlation of effect sizes. This approach is extended to a bi-directional regression that provides putative causal directions between traits with non-zero \\rho\_{ge}.
 
 This approach is described in:
 
@@ -25,7 +25,7 @@ biocLite("bogdanlab/RHOGE")
 Example
 =======
 
-The following example computes \_{ge} between BMI and triglycerides, as well as putative causal directions.
+The following example computes \\rho\_{ge} between BMI and triglycerides, as well as putative causal directions.
 
 ``` r
 library(RHOGE)
@@ -76,16 +76,16 @@ head(ge_cor_res)
 ```
 
     ##       RHOGE         SE    TSTAT  DF            P
-    ## 1 0.2225075 0.05983754 3.718527 461 0.0002250566
+    ## 1 0.2168836 0.05869152 3.695313 461 0.0002459941
 
 ``` r
 bidir_res <- rhoge.bd(bmi, tg, 14000, 91000, p1 = 0.05 / nrow(bmi), p2 = 0.05 / nrow(tg))
 head(bidir_res)
 ```
 
-    ##     ESTIMATE        SE     TSTAT      DF            P             TEST
-    ## 1  0.5322995 0.1202313  4.427294 35.0000 8.922263e-05 Trait1 -> Trait2
-    ## 2 -0.1492605 0.2074258 -0.719585 35.0000 4.765584e-01 Trait2 -> Trait1
-    ## 3         NA        NA  2.842770 57.7367 6.173105e-03             DIFF
+    ##     ESTIMATE         SE      TSTAT       DF            P             TEST
+    ## 1  0.5981401 0.09416694  6.3519115 35.00000 2.662674e-07 Trait1 -> Trait2
+    ## 2 -0.1068047 0.20526312 -0.5203307 35.00000 6.061092e-01 Trait2 -> Trait1
+    ## 3         NA         NA  3.1215369 50.51057 2.973945e-03             DIFF
 
 Currently, only [FUSION](https://github.com/gusevlab/fusion_twas) style output is supported.
