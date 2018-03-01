@@ -194,13 +194,13 @@ rhoge.bd <- function(trait1, trait2, n1, n2, p1 = NA, p2 = NA, min_regions = 10,
   res2 <- get_trait(trait2, n2)
 
   if (is.na(p1)) {
-    p1 <- 0.05 / nrow(res1)
+    p1 <- 0.05 / nrow(trait1)
   } else {
     validate_pval(p1, "p1")
   }
 
   if (is.na(p2)) {
-    p2 <- 0.05 / nrow(res2)
+    p2 <- 0.05 / nrow(trait2)
   } else {
     validate_pval(p2, "p2")
   }
