@@ -171,7 +171,7 @@ rhoge.gw <- function(trait1, trait2, n1, n2, p = 0.05, regions = grch37.eur.loci
   get_cor(trt1, trt2, regions)
 }
 
-#' TBD
+#' Performs bi-directional regression to determine putative causal direction between two traits.
 #'
 #' @param trait1 data.frame-like, containing TWAS results for trait 1
 #' @param trait2 data.frame-like, containing TWAS results for trait 2

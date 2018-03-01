@@ -3,6 +3,7 @@ Title: Genome-wide genetic correlation between two complex traits using TWAS eff
 Version: 0.1
 Authors@R: person("Ncholas", "Mancuso", email = "nick.mancuso@gmail.com", role = c("aut", "cre"))
 Description: Computes genome-wide genetic correlation between two complex traits using gene-level effects, rather than SNPs.
+biocViews:
 Depends: R (>= 3.4.2)
 License: What license is it under?
 Encoding: UTF-8
@@ -12,5 +13,5 @@ Imports: magrittr,
     tibble,
     dplyr,
     bootstrap,
-    GenomicRanges,
-    IRanges
+    IRanges,
+    GenomicRanges
