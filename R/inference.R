@@ -87,7 +87,11 @@ get_cor <- function(t1, t2, regions = grch37.eur.loci, min_regions=10, nsamples=
   mregions <- n_distinct(ind_genes$BLOCK)
 
   if (mregions < min_regions) {
-    stop(paste0("Only estimated ", mregions, " independent regions. Minimum number of regions required for reliable estimation is 10."))
+    stop(paste0("Only estimated ",
+                mregions,
+                " independent regions. Minimum number of regions required for reliable estimation is ",
+                min_regions,
+                "."))
   }
 
   # bootstrap genes from each each region
@@ -180,7 +184,7 @@ rhoge.gw <- function(trait1, trait2, n1, n2, p = 0.05, regions = grch37.eur.loci
 #' @param p1 double, Transcriptome-wide significance threshold for trait 1 ascertainment. Default is # Bonferroni adjusted 0.05
 #' @param p2 double, Transcriptome-wide significance threshold for trait 2 ascertainment. Default is # Bonferroni adjusted 0.05
 #' @param min_regions, Minimum number of ascertained regions required for bi-directional regression
-#' @param regions, data.frame-like containing approximate independent regions. Requires columns (Chr, Start, Stop). Default is estimated blocks in Europeans.
+#' @param regions, data.frame-like containing approximate independent regions. Requires columns (CHR, START, STOP). Default is estimated blocks in Europeans.
 #' @importFrom dplyr filter rename mutate bind_rows
 #' @export
 rhoge.bd <- function(trait1, trait2, n1, n2, p1 = NA, p2 = NA, min_regions = 10, regions = grch37.eur.loci) {

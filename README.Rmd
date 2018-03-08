@@ -4,14 +4,14 @@ author: "Nick Mancuso"
 date: "`r format(Sys.Date())`"
 output: github_document
 ---  
-RHOGE is an R package that computes estimates the genome-wide genetic correlation between two complex traits (diseases) as
+RHOGE is an R package that estimates the genome-wide genetic correlation between two complex traits (diseases) as
 a function of predicted gene expression effect on trait (\\rho_{ge}). Given output from two transcriptome-wide association studies,
-RHOGE estimates the mediating effect of predicted gene expression and estimates the correlation of effect sizes. This approach
-is extended to a bi-directional regression that provides putative causal directions between traits with non-zero \\rho_{ge}.
+RHOGE estimates the mediating effect of predicted gene expression and estimates the correlation of effect sizes across traits (diseases).
+This approach is extended to a bi-directional regression that provides putative causal directions between traits with non-zero \\rho_{ge}.
 
 This approach is described in:
 
-> [Integrating Gene Expression with Summary Association Statistics to Identify Genes Associated with 30 Complex Traits](https://doi.org/10.1016/j.ajhg.2017.01.031)\
+> [Integrating Gene Expression with Summary Association Statistics to Identify Genes Associated with 30 Complex Traits](https://doi.org/10.1016/j.ajhg.2017.01.031) \
 > Nicholas Mancuso, Huwenbo Shi, Pagé Goddard, Gleb Kichaev, Alexander Gusev, Bogdan Pasaniuc.\
 > American Journal of Human Genetics. 2017.
 
@@ -40,6 +40,7 @@ head(tg)
 ge_cor_res <- rhoge.gw(bmi, tg, 14000, 91000)
 head(ge_cor_res)
 
+# Perform bi-directional regression to estimate putative causal directions
 bidir_res <- rhoge.bd(bmi, tg, 14000, 91000, p1 = 0.05 / nrow(bmi), p2 = 0.05 / nrow(tg))
 head(bidir_res)
 ```

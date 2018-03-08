@@ -1,9 +1,9 @@
 RHOGE
 ================
 Nick Mancuso
-2018-02-27
+2018-02-28
 
-RHOGE is an R package that computes estimates the genome-wide genetic correlation between two complex traits (diseases) as a function of predicted gene expression effect on trait (\\rho\_{ge}). Given output from two transcriptome-wide association studies, RHOGE estimates the mediating effect of predicted gene expression and estimates the correlation of effect sizes. This approach is extended to a bi-directional regression that provides putative causal directions between traits with non-zero \\rho\_{ge}.
+RHOGE is an R package that estimates the genome-wide genetic correlation between two complex traits (diseases) as a function of predicted gene expression effect on trait (\\rho\_{ge}). Given output from two transcriptome-wide association studies, RHOGE estimates the mediating effect of predicted gene expression and estimates the correlation of effect sizes across traits (diseases). This approach is extended to a bi-directional regression that provides putative causal directions between traits with non-zero \\rho\_{ge}.
 
 This approach is described in:
 
@@ -75,18 +75,19 @@ ge_cor_res <- rhoge.gw(bmi, tg, 14000, 91000)
 head(ge_cor_res)
 ```
 
-    ##       RHOGE         SE    TSTAT  DF            P
-    ## 1 0.2238259 0.05667097 3.949569 461 9.053931e-05
+    ##       RHOGE         SE    TSTAT  DF           P
+    ## 1 0.1949802 0.06210183 3.139686 461 0.001799913
 
 ``` r
+# Perform bi-directional regression to estimate putative causal directions
 bidir_res <- rhoge.bd(bmi, tg, 14000, 91000, p1 = 0.05 / nrow(bmi), p2 = 0.05 / nrow(tg))
 head(bidir_res)
 ```
 
-    ##     ESTIMATE        SE      TSTAT       DF            P             TEST
-    ## 1 0.58340116 0.1014315 5.75167494 35.00000 1.640598e-06 Trait1 -> Trait2
-    ## 2 0.01167885 0.2124669 0.05496785 35.00000 9.564767e-01 Trait2 -> Trait1
-    ## 3         NA        NA 2.42834572 51.59924 1.869083e-02             DIFF
+    ##    ESTIMATE        SE      TSTAT       DF            P             TEST
+    ## 1  0.560464 0.1043080  5.3731637 35.00000 5.180204e-06 Trait1 -> Trait2
+    ## 2 -0.117688 0.2305352 -0.5104989 35.00000 6.129068e-01 Trait2 -> Trait1
+    ## 3        NA        NA  2.6800731 50.14695 9.932761e-03             DIFF
 
 Notes
 =====
